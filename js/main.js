@@ -10,8 +10,7 @@ const elTemplate = document.querySelector(".template").content;
 const newFragment = new DocumentFragment();
 const languageArr = [];
 
-// const localStorage = JSON.parse(window.localStorage.getItem("list"));
-const bookmarkArr = [];
+const bookmarkArr = JSON.parse(window.localStorage.getItem("list")) || [];
 
 // Render books
 function renderBooks(books, regExp = ""){
@@ -113,16 +112,8 @@ language(books, elLanguageSelect)
 
 
 // Bookmark
-function btnBookmark(id, list, array){
-    const bookmarkFinded = books.find(item =>{
-        return item.year == id;
-    })
-    
-    if(!bookmarkArr.includes(bookmarkFinded)){
-        bookmarkArr.push(bookmarkFinded)
-    }
-    console.log(bookmarkArr);
-    
+function btnBookmark(array, list){
+
     list.innerHTML = "";
     array.forEach(item => {
         const liItem = document.createElement("li")
@@ -139,13 +130,27 @@ function btnBookmark(id, list, array){
         list.appendChild(liItem)
         
     })
+
 }
+
 
 elList.addEventListener("click", (evt)=>{
     evt.preventDefault();
     if(evt.target.matches(".bookmark")){
-        btnBookmark(evt.target.dataset.id, modalList, bookmarkArr)
+        let findId = evt.target.dataset.id
+       
+        let aa = books.find(item => item.year == findId)
+    
+        if(!bookmarkArr.includes(aa)){
+            bookmarkArr.push(aa)
+            btnBookmark(bookmarkArr, modalList)
+            window.localStorage.setItem("list", JSON.stringify(bookmarkArr))
+            console.log(bookmarkArr);
+        }
+        
+        
     }
+    
 })
 
 // Delete Bookmark
@@ -156,7 +161,9 @@ modalList.addEventListener("click", (evt)=>{
         console.log(btnId);
         let itemFind = bookmarkArr.findIndex(obj => obj.year == btnId);
         bookmarkArr.splice(itemFind, 1)
-        btnBookmark(undefined, modalList, bookmarkArr)
-        // window.localStorage.setItem("list", JSON.stringify(bookmarkArr))
+        window.localStorage.setItem("list", JSON.stringify(bookmarkArr))
+        btnBookmark(bookmarkArr, modalList)
     }
 })
+btnBookmark(bookmarkArr, modalList)
+
